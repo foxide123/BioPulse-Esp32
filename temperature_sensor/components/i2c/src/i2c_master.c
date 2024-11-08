@@ -55,3 +55,20 @@ void i2c_master_write_task(void *arg)
 
     ESP_ERROR_CHECK(i2c_master_transmit(dev_handle, data_wr, DATA_LENGTH, -1));
 }
+
+
+//Some I2C device needs write configurations before reading data from it.
+void i2c_master_transmit_receive(void *arg)
+{
+    i2c_device_config_t dev_cfg = {
+    .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+    .device_address = 0x58,
+    .scl_speed_hz = 100000,
+    };
+
+    i2c_master_dev_handle_t dev_handle;
+    ESP_ERROR_CHECK(i2c_master_bus_add_device(I2C_PORT_NUM_0, &dev_cfg, &dev_handle));
+    uint8_t buf[20] = {0x20};
+    uint8_t buffer[2];
+    ESP_ERROR_CHECK(i2c_master_transmit_receive(i2c_bus_handle, buf, sizeof(buf), buffer, 2, -1));
+}
