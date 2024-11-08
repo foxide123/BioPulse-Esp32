@@ -3,6 +3,8 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "ds18b20.h"
+#include "i2c_master.h"
+#include "i2c_slave.h"
 
 void app_main(void)
 {
