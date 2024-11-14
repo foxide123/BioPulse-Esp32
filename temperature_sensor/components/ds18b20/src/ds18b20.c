@@ -1,8 +1,12 @@
+#ifdef CONFIG_IDF_TARGET_LINUX
+
+#else
+
+#include "ds18b20.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "ds18b20.h"
 
 bool one_wire_reset(void){
     bool isPresent = false;
@@ -72,3 +76,4 @@ uint8_t one_wire_read_byte(void){
     }
     return data;
 }
+#endif
