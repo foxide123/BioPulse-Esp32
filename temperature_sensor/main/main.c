@@ -1,10 +1,19 @@
+#ifdef CONFIG_IDF_TARGET_LINUX
+
+void app_main(void)
+{
+    
+}
+
+#else
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "driver/gpio.h"
 #include "esp_log.h"
 #include "ds18b20.h"
-#include "i2c_master.h"
-#include "i2c_slave.h"
+//#include "i2c_master.h"
+//#include "i2c_slave.h"
+#include "driver/gpio.h"
 
 void app_main(void)
 {
@@ -35,3 +44,5 @@ void app_main(void)
         }
     }
 }
+
+#endif
