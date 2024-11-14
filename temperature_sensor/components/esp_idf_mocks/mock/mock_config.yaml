@@ -1,0 +1,12 @@
+:cmock:
+  :plugins:
+    - ignore
+    - expect
+    - expect_any_args
+  :includes:
+    - 'i2c_types.h'
+  :defines:
+    - 'SOC_I2C_SLAVE_CAN_GET_STRETCH_CAUSE=0'
+    - 'SOC_I2C_SLAVE_SUPPORT_BROADCAST=0'
+    - 'SOC_I2C_SLAVE_SUPPORT_I2CRAM_ACCESS=0'
+    - 'SOC_I2C_SLAVE_SUPPORT_SLAVE_UNMATCH=0'
