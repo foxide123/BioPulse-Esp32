@@ -1,13 +1,26 @@
+
+//#include "driver/i2c_slave.h"
+//#include "driver/i2c.h"
+
+#ifdef CONFIG_IDF_TARGET_LINUX
+#include "Mocki2c_slave.h"
+#endif
+
 #include "driver/i2c_slave.h"
-#include "driver/i2c.h"
+#include "driver/i2c_types.h"
+#include "hal/i2c_types.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
+
 #include "i2c_slave.h"
+#include "i2c_interface.h"
 
 static QueueHandle_t s_receive_queue;
 esp_err_t ret;
+uint8_t data_rd[DATA_LENGTH]; // Buffer for reading
+uint8_t data_wr[DATA_LENGTH] = {0x00, 0x01, 0x02}; // Buffer for writing
 
 // Callback function called when slave receives data
 static IRAM_ATTR bool i2c_slave_rx_done_callback(i2c_slave_dev_handle_t channel, const i2c_slave_rx_done_event_data_t *edata, void *user_data)
@@ -96,3 +109,4 @@ void i2c_slave_write_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
+

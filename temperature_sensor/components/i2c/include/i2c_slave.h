@@ -1,3 +1,6 @@
+#ifndef I2C_SLAVE_H
+#define I2C_SLAVE_H
+
 #define  I2C_SLAVE_SCL_IO GPIO_NUM_22
 #define  I2C_SLAVE_SDA_IO GPIO_NUM_21
 
@@ -10,3 +13,4 @@
 
 void i2c_slave_read_task(void *arg);
 void i2c_slave_write_task(void *arg);
+#endif
