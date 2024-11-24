@@ -12,9 +12,10 @@ set(include_dirs
     "${IDF_PATH}/components/esp_driver_spi/include"
     "${IDF_PATH}/components/esp_driver_rmt/include/driver"
     "${IDF_PATH}/components/esp_driver_rmt/include"
-    "${IDF_PATH}/components/esp_driver_i2c/include/driver"
-    "${IDF_PATH}/components/esp_driver_i2c/include"
+    #"${IDF_PATH}/components/esp_driver_i2c/include/driver"
+    #"${IDF_PATH}/components/esp_driver_i2c/include"
     "${IDF_PATH}/components/hal/include"
+    "${IDF_PATH}/components/soc/include"
 
     "${IDF_PATH}/components/driver/i2c/include/driver"
     "${IDF_PATH}/components/driver/i2c/include"
@@ -27,7 +28,7 @@ set(include_dirs
 # Note: "hal" and "soc" are only required for corresponding header files and their definitions
 # here, they don't provide functionality when built for running on the host.
 idf_component_mock(INCLUDE_DIRS ${include_dirs}
-    REQUIRES freertos hal soc driver
+    REQUIRES freertos hal soc esp_driver_i2c
     MOCK_HEADER_FILES
     ${IDF_PATH}/components/esp_driver_gpio/include/driver/gpio.h
     ${IDF_PATH}/components/esp_driver_spi/include/driver/spi_master.h
@@ -36,10 +37,9 @@ idf_component_mock(INCLUDE_DIRS ${include_dirs}
     ${IDF_PATH}/components/esp_driver_rmt/include/driver/rmt_tx.h
     ${IDF_PATH}/components/esp_driver_rmt/include/driver/rmt_common.h
     ${IDF_PATH}/components/esp_driver_rmt/include/driver/rmt_encoder.h
-    ${IDF_PATH}/components/esp_driver_i2c/include/driver/i2c_master.h
-    ${IDF_PATH}/components/esp_driver_i2c/include/driver/i2c_slave.h
     ${IDF_PATH}/components/driver/i2c/include/driver/i2c.h
-    ${IDF_PATH}/components/esp_driver_i2c/include/driver/i2c_types.h
+    #${IDF_PATH}/components/esp_driver_i2c/include/driver/i2c_master.h
+    #${IDF_PATH}/components/esp_driver_i2c/include/driver/i2c_slave.h
     ${IDF_PATH}/components/esp_driver_usb_serial_jtag/include/driver/usb_serial_jtag.h
 )
 endif()
