@@ -3,7 +3,7 @@
 #define I2C_INTERFACE_H
 
 #ifdef CONFIG_IDF_TARGET_LINUX
-#include "Mocki2c_slave.h"
+//#include "Mocki2c_slave.h"
 #else
 #include "driver/i2c_slave.h"
 #include "esp_err.h"

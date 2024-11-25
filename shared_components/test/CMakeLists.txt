@@ -1,19 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
 include($ENV{IDF_PATH}/tools/cmake/version.cmake)
 
-
 set(COMPONENTS main)
-set(EXTRA_COMPONENT_DIRS "../components")
-set(TEST_COMPONENTS "ds18b20" CACHE STRING "List of components to test")
+set(EXTRA_COMPONENT_DIRS "../i2c")
+set(EXTRA_COMPONENT_DIRS "../cJSON")
+set(TEST_COMPONENTS "cJSON" "i2c" CACHE STRING "List of components to test")
 
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(temperature_sensor_test)
 
-add_subdirectory(../../external_components/fff ${CMAKE_BINARY_DIR}/../../fff)
-
-list(APPEND EXTRA_COMPONENT_DIRS "$ENV{IDF_PATH}/tools/mocks/driver/")
-list(APPEND EXTRA_COMPONENT_DIRS "$ENV{IDF_PATH}/tools/mocks/freertos/")
+add_subdirectory(../fff ${CMAKE_BINARY_DIR}/fff)
 
 
 add_custom_command(
