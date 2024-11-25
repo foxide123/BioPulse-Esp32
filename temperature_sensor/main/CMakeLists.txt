@@ -1,6 +1,6 @@
 idf_component_register(SRCS "main.c"
             INCLUDE_DIRS "."
-            REQUIRES ds18b20 i2c
+            REQUIRES ds18b20
             PRIV_REQUIRES esp_driver_gpio)
             
 if(${IDF_TARGET} STREQUAL "linux")
