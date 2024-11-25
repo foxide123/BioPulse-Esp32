@@ -3,7 +3,7 @@
 //#include "driver/i2c.h"
 
 #ifdef CONFIG_IDF_TARGET_LINUX
-#include "Mocki2c_slave.h"
+//#include "Mocki2c_slave.h"
 #endif
 
 #include "driver/i2c_slave.h"
@@ -16,6 +16,7 @@
 
 #include "i2c_slave.h"
 #include "i2c_interface.h"
+#include "driver/i2c.h"
 
 static QueueHandle_t s_receive_queue;
 esp_err_t ret;

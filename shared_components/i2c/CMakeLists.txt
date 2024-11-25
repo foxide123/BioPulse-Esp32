@@ -1,6 +1,6 @@
 idf_component_register(SRCS "src/i2c_master.c" "src/i2c_slave.c"
                         INCLUDE_DIRS "include"
-                        REQUIRES unity cmock esp_driver_i2c esp_idf_mocks)
+                        REQUIRES unity cmock esp_driver_i2c esp_idf_mocks driver)
                         
 #Config depending on the target - linux or esp32                
 if(${IDF_TARGET} STREQUAL "linux")

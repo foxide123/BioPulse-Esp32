@@ -11,8 +11,6 @@ void app_main(void)
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "ds18b20.h"
-//#include "i2c_master.h"
-//#include "i2c_slave.h"
 #include "driver/gpio.h"
 
 void app_main(void)
