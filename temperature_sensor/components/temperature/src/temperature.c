@@ -4,6 +4,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "i2c_component_slave.h"
+#include "bluetooth_component.h"
+#include "cJSON_Manager.h"
 
 #define SENSOR_READ_INTERVAL_MS 5000 // Read every 5 seconds
 
@@ -47,13 +49,21 @@ static void temperature_publish_task(void *arg)
 
         if(temperature != -1000.0f)
         {
-            char temp_str[10];
-            snprintf(temp_str, sizeof(temp_str), "%.2f", temperature);
+            //char temp_str[10];
+            //snprintf(temp_str, sizeof(temp_str), "%.2f", temperature);
 
-            int msg_id = esp_mqtt_client_publish(mqtt_client, "/sensors/temperature", temp_str, 0, 1, 1);
+            jsonDataStruct json;
+            json.value = 20;
+            json.type = TEMPERATURE;
+
+            char* createdJson = create_json(json);
+
+            bluetooth_send_data(createdJson);
+
+            int msg_id = esp_mqtt_client_publish(mqtt_client, "/sensors/temperature", createdJson, 0, 1, 1);
             if(msg_id != -1)
             {
-                ESP_LOGI(TEMP_TAG, "Published temperature: %s°C, msg_id=%d", temp_str, msg_id);
+                ESP_LOGI(TEMP_TAG, "Published temperature: %s°C, msg_id=%d", createdJson, msg_id);
             }else
             {
                 ESP_LOGE(TEMP_TAG, "Failed to publish temperature");
