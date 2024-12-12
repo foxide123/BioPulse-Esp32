@@ -17,6 +17,8 @@ void app_main(void)
 #include "mqtt_component.h"
 #include "mqtt_client.h"
 #include "temperature.h"
+#include "bluetooth_component.h"
+#include "cJSON_Manager.h"
 
 #define DATA_LENGTH 32
 #define I2C_SLAVE_SCL_IO GPIO_NUM_22
@@ -30,6 +32,8 @@ volatile float temperature = 0.0f;
 
 void app_main(void)
 {
+
+    bluetooth_init();
 
     // MQTT client config
     esp_mqtt_client_config_t mqtt_cfg = {
