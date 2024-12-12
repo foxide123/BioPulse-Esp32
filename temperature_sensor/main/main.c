@@ -12,35 +12,62 @@ void app_main(void)
 #include "esp_log.h"
 #include "ds18b20.h"
 #include "driver/gpio.h"
+#include "i2c_component_slave.h"
+#include "driver/i2c_slave.h"
+#include "mqtt_component.h"
+#include "mqtt_client.h"
+#include "temperature.h"
+#include "bluetooth_component.h"
+#include "cJSON_Manager.h"
+
+#define DATA_LENGTH 32
+#define I2C_SLAVE_SCL_IO GPIO_NUM_22
+#define I2C_SLAVE_SDA_IO GPIO_NUM_21
+#define I2C_SLAVE_ADDR 0x65
+#define TEST_I2C_PORT I2C_NUM_0
+#define MAIN_TAG "Main"
+
+QueueHandle_t temp_queue;
+volatile float temperature = 0.0f;
 
 void app_main(void)
 {
-    gpio_set_pull_mode(ONE_WIRE_PIN, GPIO_PULLUP_ONLY);
 
-    while (1)
-    {
-        if (one_wire_reset())
-        {
-            ESP_LOGI("1-Wire", "Device found");
+    bluetooth_init();
 
-            one_wire_write_byte(0xCC);
-            one_wire_write_byte(0x44);
-
-            vTaskDelay(pdMS_TO_TICKS(750));
-
-            one_wire_reset();
-            one_wire_write_byte(0xCC);
-            one_wire_write_byte(0xBE);
-
-            uint8_t tempLSB = one_wire_read_byte();
-            uint8_t tempMSB = one_wire_read_byte();
-            int16_t temp = (tempMSB << 8) | tempLSB;
-
-            ESP_LOGI("1-Wire", "Temperature: %d.%04d C", temp/16, (temp%16)*625);
-        }else{
-            ESP_LOGI("1-Wire", "No device found");
+    // MQTT client config
+    esp_mqtt_client_config_t mqtt_cfg = {
+        .credentials = {
+            .username = "bob",
+            .authentication = {
+                .password = "bob",
+                //.certificate = (const char *)mqtt_eclipseprojects_io_pem_start,
+            }
+        },
+        .broker = {
+            .address = {
+                .uri = "mqtt://10.154.220.118:1883",
+            }
         }
+    };
+
+    // MQTT client initialization
+    esp_mqtt_client_handle_t client = mqtt_init(&mqtt_cfg);
+    if(client == NULL)
+    {
+        ESP_LOGE(MAIN_TAG, "Failed to initialize MQTT client");
+        return;
     }
+
+    // Initialize Temperature component
+    esp_err_t temp_init_status = temperature_init(client);
+    if(temp_init_status != ESP_OK)
+    {
+        ESP_LOGE(MAIN_TAG, "Failed to initialize Temperature component");
+        return;
+    }
+
+    ESP_LOGI(MAIN_TAG, "Application initialized successfully");
 }
 
 #endif

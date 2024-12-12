@@ -1,4 +1,4 @@
-idf_component_register(SRCS "src/i2c_master.c" "src/i2c_slave.c"
+idf_component_register(SRCS "src/i2c_component_master.c" "src/i2c_component_slave.c"
                         INCLUDE_DIRS "include"
                         REQUIRES unity cmock esp_driver_i2c esp_idf_mocks driver)
                         

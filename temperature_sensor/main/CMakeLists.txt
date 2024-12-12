@@ -1,7 +1,8 @@
 idf_component_register(SRCS "main.c"
             INCLUDE_DIRS "."
-            REQUIRES ds18b20
-            PRIV_REQUIRES esp_driver_gpio)
+            REQUIRES esp_driver_i2c ds18b20 temperature i2c_component mqtt_component nvs_flash bluetooth_component cJSON
+            PRIV_REQUIRES esp_driver_gpio
+)
             
 if(${IDF_TARGET} STREQUAL "linux")
     target_compile_definitions(${COMPONENT_LIB} PRIVATE CONFIG_IDF_TARGET_LINUX=1)

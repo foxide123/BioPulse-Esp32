@@ -6,7 +6,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-#include "i2c_master.h"
+#include "i2c_component_master.h"
 
 uint8_t data_rd[DATA_LENGTH]; // Buffer for reading
 uint8_t data_wr[DATA_LENGTH] = {0x00, 0x01, 0x02}; // Buffer for writing
