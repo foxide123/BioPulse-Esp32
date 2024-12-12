@@ -90,3 +90,7 @@ dkms.conf
 */build
 test/build
 */test/build
+
+# Ignore signing keys
+*/*.pem
+*/secure_boot_signing_key.pem
