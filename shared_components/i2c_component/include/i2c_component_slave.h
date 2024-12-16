@@ -13,8 +13,8 @@
 #define TAG "I2C Slave Component"
 
 typedef struct {
-        i2c_slave_config_t i2c_config;
-        QueueHandle_t temp_queue;
+        i2c_slave_dev_handle_t handle;
+        char* json;
 } i2c_task_params_t;
 
 void i2c_slave_read_task(void *arg);
