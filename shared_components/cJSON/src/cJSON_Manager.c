@@ -1,22 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "cJSON.h"
 #include "cJSON_Model.h"
+#include "esp_log.h"
+
+#define CJSON_TAG "CJSON_Manager"
 
 char* create_json(jsonDataStruct dataStruct)
 {   
+    /*
     jsonDataStruct data_array[DATA_TYPE_COUNT] = {
         {25.5, TEMPERATURE},
         {300.0, LIGHT},
         {1.0, PUMP}
     };
+    */
 
-    // Create a JSON object
+    // Create a new JSON object
     cJSON *root = cJSON_CreateObject();
     if (root == NULL) {
         printf("Failed to create JSON object\n");
-        return;
+        return NULL;
     }
 
-    cJSON_AddNumberToObject(root, dataStruct.type, dataStruct.value);
+    // "id" field
+    if(!cJSON_AddStringToObject(root, "id", dataStruct.id)) {
+        ESP_LOGE(CJSON_TAG, "Failed to add 'id' to JSON");
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+    // "sensor_name" field
+    if(!cJSON_AddStringToObject(root, "sensor_name", dataStruct.sensor_name)) {
+        ESP_LOGE(CJSON_TAG, "Failed to add 'sensor_name' to JSON");
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+    // "type" field
+    if(!cJSON_AddStringToObject(root, "type", data_types[dataStruct.type])) {
+        ESP_LOGE(CJSON_TAG, "Failed to add 'type' to JSON");
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+    // "temp" field
+    if(!cJSON_AddNumberToObject(root, data_types[TEMPERATURE], dataStruct.value)) {
+        ESP_LOGE(CJSON_TAG, "Failed to add 'Temp' to JSON");
+        cJSON_Delete(root);
+        return NULL;
+    }
+
+   // cJSON_AddNumberToObject(root, data_types[dataStruct.type], dataStruct.value);
     
 
     // JSON Object to string
@@ -24,11 +60,12 @@ char* create_json(jsonDataStruct dataStruct)
     if (json_str == NULL) {
         printf("Failed to print JSON object\n");
         cJSON_Delete(root);
-        return;
+        return NULL;
     }
 
-    printf("Generated JSON: %s\n", json_str);
+    printf("%s\n", json_str);
 
     cJSON_Delete(root);
-    free(json_str);
+    
+    return json_str;
 }

@@ -14,14 +14,18 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
-#include "i2c_slave.h"
-#include "i2c_interface.h"
+#include "i2c_component_slave.h"
+#include "i2c_component_interface.h"
 #include "driver/i2c.h"
+#include "cJSON_Manager.h"
+#include "cJSON_Model.h"
+#include <string.h>
 
-static QueueHandle_t s_receive_queue;
 esp_err_t ret;
 uint8_t data_rd[DATA_LENGTH]; // Buffer for reading
 uint8_t data_wr[DATA_LENGTH] = {0x00, 0x01, 0x02}; // Buffer for writing
+QueueHandle_t s_receive_queue;
+
 
 // Callback function called when slave receives data
 static IRAM_ATTR bool i2c_slave_rx_done_callback(i2c_slave_dev_handle_t channel, const i2c_slave_rx_done_event_data_t *edata, void *user_data)
@@ -32,23 +36,17 @@ static IRAM_ATTR bool i2c_slave_rx_done_callback(i2c_slave_dev_handle_t channel,
     return high_task_wakeup == pdTRUE;
 }
 
-// Task function to handle I2C slave
+//  Read request from master. Slave sends data back
 void i2c_slave_read_task(void *arg)
 {
     uint8_t *data_rd = (uint8_t *)malloc(DATA_LENGTH);
 
-    i2c_slave_config_t i2c_slv_config = {
-        .addr_bit_len = I2C_ADDR_BIT_LEN_7,
-        .clk_source = I2C_CLK_SRC_DEFAULT,
-        .i2c_port = TEST_I2C_PORT,
-        .send_buf_depth = 256,
-        .scl_io_num = I2C_SLAVE_SCL_IO,
-        .sda_io_num = I2C_SLAVE_SDA_IO,
-        .slave_addr = I2C_SLAVE_ADDR,
-    };
+    //Casting the argument to i2c_slave_config_t pointer
+    i2c_slave_config_t *i2c_slv_config = (i2c_slave_config_t *)arg;
+    
 
     i2c_slave_dev_handle_t slave_handle;
-    ESP_ERROR_CHECK(i2c_new_slave_device(&i2c_slv_config, &slave_handle));
+    ESP_ERROR_CHECK(i2c_new_slave_device(i2c_slv_config, &slave_handle));
 
     // Create a queue to receive notifications when data has been received
     s_receive_queue = xQueueCreate(1, sizeof(i2c_slave_rx_done_event_data_t));
@@ -76,38 +74,37 @@ void i2c_slave_read_task(void *arg)
     }
 }
 
+//void * allows to pass any datas
 void i2c_slave_write_task(void *arg)
 {
 
-    esp_err_t ret;
-    uint8_t *data_wr = (uint8_t *) malloc(DATA_LENGTH);
+    i2c_task_params_t *params = (i2c_task_params_t *)arg;
+    i2c_slave_dev_handle_t handle = params->handle;
+    char* json = params->json;
 
-    i2c_slave_config_t i2c_slv_config = {
-        .addr_bit_len = I2C_ADDR_BIT_LEN_7,
-        .clk_source = I2C_CLK_SRC_DEFAULT,
-        .i2c_port = TEST_I2C_PORT,
-        .send_buf_depth = 256,
-        .scl_io_num = I2C_SLAVE_SCL_IO,
-        .sda_io_num = I2C_SLAVE_SDA_IO,
-        .slave_addr = I2C_SLAVE_ADDR,
-    };
-
-    i2c_slave_dev_handle_t i2c_slave_dev_handle;
-    ESP_ERROR_CHECK(i2c_new_slave_device(&i2c_slv_config, &i2c_slave_dev_handle));
-    for (int i = 0; i < DATA_LENGTH; i++) {
-        data_wr[i] = i;
+    size_t json_length = strlen(json) + 1;
+    uint8_t json_buffer[256];
+    if(json_length > sizeof(json_buffer)){
+        ESP_LOGE(TAG, "JSON string too long for I2C");
     }
-
+    else {
+        memcpy(json_buffer, json, json_length);
+    }
+   
     while (1)
     {
-        ret = i2c_slave_transmit(i2c_slave_dev_handle, data_wr, DATA_LENGTH, 10000);
-         if (ret == ESP_OK) {
+
+        esp_err_t ret = i2c_slave_transmit(handle, json_buffer, json_length, 1000);
+        if(ret == ESP_OK)
+        {
             ESP_LOGI(TAG, "Data transmitted successfully");
-        } else {
-            ESP_LOGE(TAG, "Error transmitting data: %s", esp_err_to_name(ret));
-            free(data_wr);
         }
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        else 
+        {
+            ESP_LOGE(TAG, "Error transmitting data: %s", esp_err_to_name(ret));
+        }
     }
+    // Clean up (not reached in this infinite loop)
+    vTaskDelete(NULL);
 }
 
