@@ -17,6 +17,8 @@
 #include "i2c_component_slave.h"
 #include "i2c_component_interface.h"
 #include "driver/i2c.h"
+#include "cJSON_Manager.h"
+#include "cJSON_Model.h"
 #include <string.h>
 
 esp_err_t ret;
@@ -34,7 +36,7 @@ static IRAM_ATTR bool i2c_slave_rx_done_callback(i2c_slave_dev_handle_t channel,
     return high_task_wakeup == pdTRUE;
 }
 
-// Task function to handle I2C slave
+//  Read request from master. Slave sends data back
 void i2c_slave_read_task(void *arg)
 {
     uint8_t *data_rd = (uint8_t *)malloc(DATA_LENGTH);
@@ -77,44 +79,29 @@ void i2c_slave_write_task(void *arg)
 {
 
     i2c_task_params_t *params = (i2c_task_params_t *)arg;
-    i2c_slave_config_t *i2c_slv_config = &(params->i2c_config);
-    QueueHandle_t temp_queue = params->temp_queue;
+    i2c_slave_dev_handle_t handle = params->handle;
+    char* json = params->json;
 
-
-    // I2C slave device init
-    i2c_slave_dev_handle_t i2c_slave_dev_handle;
-    ESP_ERROR_CHECK(i2c_new_slave_device(i2c_slv_config, &i2c_slave_dev_handle));
-
+    size_t json_length = strlen(json) + 1;
+    uint8_t json_buffer[256];
+    if(json_length > sizeof(json_buffer)){
+        ESP_LOGE(TAG, "JSON string too long for I2C");
+    }
+    else {
+        memcpy(json_buffer, json, json_length);
+    }
    
     while (1)
     {
 
-        float temperature;
-
-        if(xQueueReceive(temp_queue, &temperature, portMAX_DELAY) == pdPASS)
+        esp_err_t ret = i2c_slave_transmit(handle, json_buffer, json_length, 1000);
+        if(ret == ESP_OK)
         {
-            memcpy(data_wr, &temperature, sizeof(float));
-
-            ESP_LOGI(TAG, "Sending temperature: %.2f°C as raw data", temperature);
-
-            esp_err_t ret = i2c_slave_transmit(i2c_slave_dev_handle, data_wr, sizeof(float), 1000);
-            if(ret == ESP_OK)
-            {
-                ESP_LOGI(TAG, "Data transmitted successfully");
-            }
-            else if (ret == ESP_ERR_INVALID_STATE)
-            {
-                ESP_LOGW(TAG, "Ringbuffer full, waiting...");
-                vTaskDelay(pdMS_TO_TICKS(1000));
-            }
-            else 
-            {
-                ESP_LOGE(TAG, "Error transmitting data: %s", esp_err_to_name(ret));
-            }
+            ESP_LOGI(TAG, "Data transmitted successfully");
         }
-        else
+        else 
         {
-            ESP_LOGW(TAG, "Failed to receive temperature from queue");
+            ESP_LOGE(TAG, "Error transmitting data: %s", esp_err_to_name(ret));
         }
     }
     // Clean up (not reached in this infinite loop)
