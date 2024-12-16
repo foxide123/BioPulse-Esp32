@@ -1,6 +1,6 @@
 idf_component_register(SRCS "main.c"
             INCLUDE_DIRS "."
-            REQUIRES esp_driver_i2c ds18b20 temperature i2c_component mqtt_component nvs_flash bluetooth_component cJSON
+            REQUIRES esp_driver_i2c ds18b20 temperature i2c_component mqtt_component nvs_flash bluetooth_component cJSON esp_wifi wifi_component
             PRIV_REQUIRES esp_driver_gpio
 )
             

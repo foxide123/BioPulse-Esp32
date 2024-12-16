@@ -9,6 +9,8 @@
 
 #define SENSOR_READ_INTERVAL_MS 5000 // Read every 5 seconds
 
+static void temperature_publish_task(void* arg);
+
 static float read_temperature(void)
 {
     if(one_wire_reset(ONE_WIRE_PIN))
@@ -29,18 +31,24 @@ static float read_temperature(void)
         int16_t tempRaw = (tempMSB << 8) | tempLSB;
         float temperature = tempRaw / 16.0;
 
-        ESP_LOGI("1-Wire", "Temperature: %.2f°C", temperature);
+        //ESP_LOGI("1-Wire", "Temperature: %.2f°C", temperature);
         return temperature;
     } 
     else{
-        ESP_LOGI(TEMP_TAG, "No device found");
+        //ESP_LOGI(TEMP_TAG, "No device found");
         return -1000.0f;
     }
 }
 
+
 static void temperature_publish_task(void *arg)
 {
-    esp_mqtt_client_handle_t mqtt_client = *(esp_mqtt_client_handle_t *)arg;
+    i2c_slave_dev_handle_t handle = *(i2c_slave_dev_handle_t *)arg;
+    i2c_task_params_t task_params;
+    task_params.handle = handle;
+
+    uint8_t *json_buffer = (uint8_t *) malloc(256);
+
     float temperature = 0.0f;
 
     while(1)
@@ -51,64 +59,55 @@ static void temperature_publish_task(void *arg)
         {
             //char temp_str[10];
             //snprintf(temp_str, sizeof(temp_str), "%.2f", temperature);
-
             jsonDataStruct json;
-            json.value = 20;
+            json.value = temperature;
             json.type = TEMPERATURE;
+            json.id = "129082";
+            json.sensor_name = "temp1";
+
+
+            //task_params.json = createdJson;
+            //i2c_slave_write_task(&task_params);
 
             char* createdJson = create_json(json);
+            size_t json_length = strlen(createdJson)+1;
+            // writing json length to the first byte in the buffer
+            json_buffer[0] = (uint8_t)json_length;
+            memcpy(json_buffer + 1, createdJson, json_length);
+
+            uint8_t total_message_length = json_length + 1;
+            esp_err_t transmit_ret = i2c_slave_transmit(handle, json_buffer, total_message_length, 1000 / portTICK_PERIOD_MS);
+            if(transmit_ret == ESP_OK)
+            {
+                ESP_LOGI(TEMP_TAG, "Data transmitted successfully");
+                memset(json_buffer, 0, json_length);
+            }else
+            {
+                ESP_LOGE(TEMP_TAG, "Error transmitting data: %s", esp_err_to_name(transmit_ret));
+            }
 
             bluetooth_send_data(createdJson);
 
-            int msg_id = esp_mqtt_client_publish(mqtt_client, "/sensors/temperature", createdJson, 0, 1, 1);
-            if(msg_id != -1)
-            {
-                ESP_LOGI(TEMP_TAG, "Published temperature: %s°C, msg_id=%d", createdJson, msg_id);
-            }else
-            {
-                ESP_LOGE(TEMP_TAG, "Failed to publish temperature");
-            }
+           //int msg_id = esp_mqtt_client_publish(mqtt_client, "/sensors/temperature", createdJson, 0, 1, 1);
+            //if(msg_id != -1)
+            //{
+             //   ESP_LOGI(TEMP_TAG, "Published temperature: %s°C, msg_id=%d", createdJson, msg_id);
+           // }else
+           // {
+            //    ESP_LOGE(TEMP_TAG, "Failed to publish temperature");
+            //}
         }
 
-        vTaskDelay(pdMS_TO_TICKS(SENSOR_READ_INTERVAL_MS));
+        vTaskDelay(pdMS_TO_TICKS(3000));
     }
 }
-
-esp_err_t temperature_init(esp_mqtt_client_handle_t client)
+esp_err_t temperature_init(void *arg)
 {
-    QueueHandle_t temp_queue = xQueueCreate(10, sizeof(float));
+    i2c_slave_dev_handle_t i2c_handle = *(i2c_slave_dev_handle_t *)arg;
+    esp_err_t ret;
 
-    if(temp_queue == NULL) {
-        ESP_LOGE(TEMP_TAG, "Failed to create temperature queue");
-        return ESP_FAIL;
-    }
 
-    gpio_set_pull_mode(ONE_WIRE_PIN, GPIO_PULLUP_ONLY);
+    xTaskCreate(temperature_publish_task, "temperature_publish_task", 1024 * 4, &i2c_handle, 10, NULL);
 
-    i2c_task_params_t *task_params = malloc(sizeof(i2c_task_params_t));
-    if(task_params == NULL) {
-        ESP_LOGE(TEMP_TAG, "Failed to allocated memory for task parameters");
-        return ESP_FAIL;
-    }
-
-    task_params->i2c_config.addr_bit_len = I2C_ADDR_BIT_LEN_7;
-    task_params->i2c_config.clk_source = I2C_CLK_SRC_DEFAULT;
-    task_params->i2c_config.i2c_port = TEST_I2C_PORT;
-    task_params->i2c_config.send_buf_depth = 256;
-    task_params->i2c_config.scl_io_num = I2C_SLAVE_SCL_IO;
-    task_params->i2c_config.sda_io_num = I2C_SLAVE_SDA_IO;
-    task_params->i2c_config.slave_addr = I2C_SLAVE_ADDR;
-
-    task_params->temp_queue = temp_queue;
-
-    BaseType_t task_created = xTaskCreate(temperature_publish_task, "i2c_slave_write_task", 4096, (void *)task_params, 5, NULL);
-    if(task_created != pdPASS)
-    {
-        ESP_LOGE(TEMP_TAG, "Failed to create I2C slave write task");
-        free(task_params);
-        return ESP_FAIL;
-    }
-
-    ESP_LOGI(TEMP_TAG, "Temperature component initialized successfully");
     return ESP_OK;
 }
