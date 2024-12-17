@@ -17,8 +17,8 @@
 #include "i2c_component_slave.h"
 #include "i2c_component_interface.h"
 #include "driver/i2c.h"
-#include "cJSON_Manager.h"
-#include "cJSON_Model.h"
+#include "cJSON_Sensor_Manager.h"
+#include "cJSON_Sensor_Model.h"
 #include <string.h>
 
 esp_err_t ret;

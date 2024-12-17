@@ -1,5 +1,5 @@
-#ifndef CJSON_MODEL_H
-#define CJSON_MODEL_H
+#ifndef CJSON_SENSOR_MODEL_H
+#define CJSON_SENSOR_MODEL_H
 
 typedef enum{
     TEMPERATURE = 0,
@@ -26,7 +26,6 @@ typedef struct{
   dataType type;
   char* sensor_name;
   double value;
-
-} jsonDataStruct;
+} jsonSensorResponse;
 
 #endif

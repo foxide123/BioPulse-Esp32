@@ -18,7 +18,7 @@ void app_main(void)
 #include "mqtt_client.h"
 #include "temperature.h"
 #include "bluetooth_component.h"
-#include "cJSON_Manager.h"
+#include "cJSON_Sensor_Manager.h"
 #include "esp_wifi.h"
 #include "esp_system.h"
 #include "esp_mac.h"
@@ -27,7 +27,7 @@ void app_main(void)
 #define DATA_LENGTH 32
 #define I2C_SLAVE_SCL_IO GPIO_NUM_22
 #define I2C_SLAVE_SDA_IO GPIO_NUM_21
-#define I2C_SLAVE_ADDR 0x68
+#define I2C_SLAVE_ADDR 0x61
 #define TEST_I2C_PORT I2C_NUM_0
 #define MAIN_TAG "Main"
 
@@ -70,7 +70,7 @@ void app_main(void)
         .send_buf_depth = 256,                // set tx buffer length
         .scl_io_num = I2C_SLAVE_SCL_IO,                      // SCL gpio number
         .sda_io_num = I2C_SLAVE_SDA_IO,                      // SDA gpio number
-        .slave_addr = 0x61,  
+        .slave_addr = I2C_SLAVE_ADDR,  
     };
 
     i2c_slave_dev_handle_t i2c_handle;
@@ -83,6 +83,7 @@ void app_main(void)
         ESP_LOGE(MAIN_TAG, "Failed to initialize Temperature component");
         return;
     }
+    
     uint8_t mac[6];
     esp_err_t ret= esp_read_mac(mac, ESP_MAC_WIFI_STA);
     if(ret != ESP_OK)

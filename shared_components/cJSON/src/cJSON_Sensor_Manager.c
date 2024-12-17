@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cJSON.h"
-#include "cJSON_Model.h"
+#include "cJSON_Sensor_Model.h"
+#include "cJSON_Sensor_Manager.h"
 #include "esp_log.h"
 
-#define CJSON_TAG "CJSON_Manager"
+#define CJSON_TAG "CJSON_Sensor_Manager"
 
-char* create_json(jsonDataStruct dataStruct)
+char* create_sensor_response_json(jsonSensorResponse dataStruct)
 {   
     /*
     jsonDataStruct data_array[DATA_TYPE_COUNT] = {
