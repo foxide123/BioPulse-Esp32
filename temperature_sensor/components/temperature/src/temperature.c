@@ -5,7 +5,7 @@
 #include "freertos/task.h"
 #include "i2c_component_slave.h"
 #include "bluetooth_component.h"
-#include "cJSON_Manager.h"
+#include "cJSON_Sensor_Manager.h"
 
 #define SENSOR_READ_INTERVAL_MS 5000 // Read every 5 seconds
 
@@ -59,17 +59,17 @@ static void temperature_publish_task(void *arg)
         {
             //char temp_str[10];
             //snprintf(temp_str, sizeof(temp_str), "%.2f", temperature);
-            jsonDataStruct json;
+            jsonSensorResponse json;
             json.value = temperature;
-            json.type = TEMPERATURE;
-            json.id = "129082";
+            json.type = EC;
+            json.id = "98620";
             json.sensor_name = "temp1";
 
 
             //task_params.json = createdJson;
             //i2c_slave_write_task(&task_params);
 
-            char* createdJson = create_json(json);
+            char* createdJson = create_sensor_response_json(json);
             size_t json_length = strlen(createdJson)+1;
             // writing json length to the first byte in the buffer
             json_buffer[0] = (uint8_t)json_length;
@@ -101,6 +101,7 @@ static void temperature_publish_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(3000));
     }
 }
+
 esp_err_t temperature_init(void *arg)
 {
     i2c_slave_dev_handle_t i2c_handle = *(i2c_slave_dev_handle_t *)arg;
