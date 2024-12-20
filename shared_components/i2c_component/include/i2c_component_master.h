@@ -1,6 +1,12 @@
 //#ifndef I2C_MASTER_H
 //#define I2C_MASTER_H
 
+#include "driver/i2c_master.h"
+#include "hal/i2c_types.h"
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 #include "driver/gpio.h" 
 
 #if CONFIG_IDF_TARGET_ESP32
@@ -12,9 +18,15 @@
 #endif
 
 #define DATA_LENGTH 32
-#define I2C_MASTER_ADDR 0x65
-#define TEST_I2C_PORT I2C_NUM_0
-#define TAG "I2C Slave Component"
+//#define I2C_MASTER_ADDR 0x65
+#define I2C_PORT I2C_NUM_0
+#define I2C_MASTER_TAG "I2C Slave Component"
+
+typedef struct {
+        i2c_master_dev_handle_t handle;
+        char* json;
+} i2c_master_task_params_t;
+
 
 void i2c_master_read_task(void *arg);
 void i2c_master_write_task(void *arg);

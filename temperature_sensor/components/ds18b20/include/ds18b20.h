@@ -2,14 +2,15 @@
 
 #define ONE_WIRE_PIN 0 
 
-#else
-
-#include "driver/gpio.h" 
-
 #endif
 
+#include "driver/gpio.h" 
 #include <stdint.h>
 #include <stdbool.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#include "esp_log.h"
 
 
 bool one_wire_reset(gpio_num_t one_wire_pin);

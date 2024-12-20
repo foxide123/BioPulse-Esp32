@@ -1,17 +1,5 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-#include "nvs_flash.h"
-#include "esp_log.h"
-#include "esp_system.h"
-#include "esp_partition.h"
-#include "esp_event.h"
-#include "esp_netif.h"
-#include "esp_tls.h"
-#include "esp_ota_ops.h"
-#include <sys/param.h>
-#include "mqtt_client.h"
+#ifndef CONFIG_IDF_TARGET_LINUX
+
 #include "mqtt_component.h"
 
 #if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
@@ -21,6 +9,8 @@ extern const uint8_t mqtt_eclipseprojects_io_pem_start[]   asm("_binary_mqtt_ecl
 #endif
 extern const uint8_t mqtt_eclipseprojects_io_pem_end[]   asm("_binary_mqtt_eclipseprojects_io_pem_end");
 
+
+#define CONFIG_BROKER_URI "mqtt://10.154.220.118:1883"
 
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 
@@ -139,3 +129,5 @@ esp_mqtt_client_handle_t mqtt_init(const esp_mqtt_client_config_t *mqtt_cfg)
     esp_mqtt_client_handle_t client = mqtt_app_start(mqtt_cfg);
     return client;
 }
+
+#endif

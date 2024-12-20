@@ -3,10 +3,6 @@
 #else
 
 #include "ds18b20.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
-#include "esp_log.h"
 
 bool one_wire_reset(gpio_num_t one_wire_pin){
     bool isPresent = false;
@@ -19,7 +15,7 @@ bool one_wire_reset(gpio_num_t one_wire_pin){
     esp_rom_delay_us(70);
 
     isPresent = !gpio_get_level(one_wire_pin);
-    esp_rom_delay_us(410);
+    esp_rom_delay_us(410); // wait for remaining 410 (410 + 70 = 480 for RX)
 
     return isPresent;
 }

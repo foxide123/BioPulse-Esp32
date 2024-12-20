@@ -40,20 +40,6 @@ bool test_one_wire_reset_device(bool isPresent)
     return one_wire_reset();
 }
 
-void test_one_wire_reset_device_present(void)
-{
-    bool isPresent = test_one_wire_reset_device(true);
-
-    TEST_ASSERT_TRUE(isPresent);
-}
-
-void test_one_wire_reset_device_absent(void)
-{
-    bool isPresent = test_one_wire_reset_device(false);
-
-    TEST_ASSERT_FALSE(isPresent);
-}
-
 void expect_one_wire_write_bit(bool bit)
 {
     #ifndef ONE_WIRE_PIN
@@ -137,20 +123,46 @@ void expect_one_wire_read_bit_sequence(bool bits[8])
 
 void test_one_wire_read_byte_returns_corect_byte(void)
 {
+    // ARRANGE
     bool bits_sequence_AA[8] = {false, true, false, true, false, true, false, true}; //from LSB to MSB
     uint8_t expected_byte_AA = 0xAA; // 10101010
+    
+    // ACT
     expect_one_wire_read_bit_sequence(bits_sequence_AA);
     uint8_t result_AA = one_wire_read_byte();
+
+    // ASSERT
     TEST_ASSERT_EQUAL_UINT8(expected_byte_AA, result_AA);
 }
 
-TEST_CASE("DS18B20 One Wire Reset Test - Device Present", "[ds18b20_unit_tests]")
+
+void test_one_wire_reset_device_present(void)
 {
-        test_one_wire_reset_device_present();
+    bool isPresent = false;
+
+    isPresent = test_one_wire_reset_device(true);
+
+    TEST_ASSERT_TRUE(isPresent);
 }
 
-TEST_CASE("DS18B20 One Wire Reset Test - Device Absent", "[ds18b20_unit_tests]")
+void test_one_wire_reset_device_absent(void)
 {
-        test_one_wire_reset_device_absent();
+
+    bool isPresent = true;
+
+    isPresent = test_one_wire_reset_device(false);
+
+    TEST_ASSERT_FALSE(isPresent);
 }
+
+TEST_CASE("Should_Return_True_When_reset_device_called_with_true", "[temperature_tests]")
+{
+    test_one_wire_reset_device_present();
+}
+
+TEST_CASE("Should_Return_True_When_reset_device_called_with_false", "[temperature_tests]")
+{
+    test_one_wire_reset_device_absent();
+}
+
 

@@ -10,7 +10,7 @@ set(TEST_COMPONENTS "ds18b20" CACHE STRING "List of components to test")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(temperature_sensor_test)
 
-add_subdirectory(../../external_components/fff ${CMAKE_BINARY_DIR}/../../fff)
+#add_subdirectory(../../external_components/fff ${CMAKE_BINARY_DIR}/../../fff)
 
 list(APPEND EXTRA_COMPONENT_DIRS "$ENV{IDF_PATH}/tools/mocks/driver/")
 list(APPEND EXTRA_COMPONENT_DIRS "$ENV{IDF_PATH}/tools/mocks/freertos/")

@@ -7,7 +7,7 @@ set(EXTRA_COMPONENT_DIRS "${SHARED_COMPONENTS_DIR}")
 message(STATUS "EXTRA_COMPONENT_DIRS: ${EXTRA_COMPONENT_DIRS}")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(tds_sensor)
+project(ph_sensor)
 
 message(STATUS "Debug message: CMake is running")
 message(STATUS "CMAKE_SOURCE_DIR is: ${CMAKE_SOURCE_DIR}")
