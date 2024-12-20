@@ -17,6 +17,9 @@ uint8_t *data_rd = NULL;
 QueueHandle_t s_receive_queue = NULL;
 uint32_t size_rd = 0;
 
+static IRAM_ATTR bool i2c_slave_rx_done_callback(i2c_slave_dev_handle_t channel, const i2c_slave_rx_done_event_data_t *edata, void *user_data);
+static void mosfet_publish_task(void *arg);
+
 static IRAM_ATTR bool i2c_slave_rx_done_callback(i2c_slave_dev_handle_t channel, const i2c_slave_rx_done_event_data_t *edata, void *user_data)
 {
     BaseType_t high_task_wakeup = pdFALSE;

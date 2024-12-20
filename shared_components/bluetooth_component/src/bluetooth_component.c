@@ -1,21 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
-#include "esp_system.h"
-#include "esp_log.h"
-#include "nvs_flash.h"
-#include "esp_bt_defs.h"
-#include "esp_gatt_common_api.h"
-#include "sdkconfig.h"
+#ifndef CONFIG_IDF_TARGET_LINUX
 
 #include "bluetooth_component.h"
-#include "esp_bt.h"
-#include "esp_bt_main.h"
-#include "esp_gap_ble_api.h"
-#include "esp_gatts_api.h"
 
 //Service UUID: ea36022b-9052-44b9-9e7c-d33e46260b2a
 // Service UUID Split:
@@ -26,13 +11,7 @@
     // 0xd3, 0x3e, 0x46, 0x26, 0x0b, 0x2a <- big-endian (original)
 // Temp Char. UUID: ea36022b-9052-44b9-9e7c-d33e46260b2b
 // pH Char. UUID: ea36022b-9052-44b9-9e7c-d33e46260b2c
-// Water Pump Char. UUID: ea36022b-9052-44b9-9e7c-d33e46260b2d
-
-
-#define GATTS_TAG "BLE_ADV_TEST"
-#define DEVICE_NAME "ESP32_BLE_Test"
-#define PROFILE_NUM 1
-#define PROFILE_APP_ID 0
+// Water Pump Char. UUID: ea36022b-9052-44b9-9e7c-d33e46260b2dad
 
 static uint8_t last_written_data[512];
 static uint16_t last_written_len  = 0;
@@ -52,6 +31,7 @@ uint8_t environmental_service_uuid128[16] = {
 };
 
 static uint8_t raw_adv_data[30];
+
 void setup_raw_adv_data() {
     raw_adv_data[0] = 0x02;
     raw_adv_data[1] = ESP_BLE_AD_TYPE_FLAG;
@@ -90,20 +70,7 @@ static esp_ble_adv_data_t adv_data = {
     .flag                = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
 };
 
-// scan response data
-static esp_ble_adv_data_t scan_rsp_data = {
-    .set_scan_rsp        = true,
-    .include_name        = true,
-    .include_txpower     = true,
-    .appearance          = 0x00,
-    .manufacturer_len    = 0,
-    .p_manufacturer_data = NULL,
-    .service_data_len    = 0,
-    .p_service_data      = NULL,
-    .service_uuid_len    = sizeof(environmental_service_uuid128),
-    .p_service_uuid      = environmental_service_uuid128,
-    .flag                = (ESP_BLE_ADV_FLAG_GEN_DISC | ESP_BLE_ADV_FLAG_BREDR_NOT_SPT),
-};
+
 
 //#endif /* CONFIG_SET_RAW_ADV_DATA */
 
@@ -439,3 +406,5 @@ void bluetooth_init()
 
     ESP_LOGI(GATTS_TAG, "BLE Advertising Setup Complete. Device Name: %s", DEVICE_NAME);
 }
+
+#endif

@@ -6,20 +6,7 @@
 //#include "Mocki2c_slave.h"
 #endif
 
-#include "driver/i2c_slave.h"
-#include "driver/i2c_types.h"
-#include "hal/i2c_types.h"
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-
 #include "i2c_component_slave.h"
-#include "i2c_component_interface.h"
-#include "driver/i2c.h"
-#include "cJSON_Sensor_Manager.h"
-#include "cJSON_Sensor_Model.h"
-#include <string.h>
 
 esp_err_t ret;
 uint8_t data_rd[DATA_LENGTH]; // Buffer for reading
@@ -63,12 +50,12 @@ void i2c_slave_read_task(void *arg)
         if(ret == ESP_OK)
         {
             if (xQueueReceive(s_receive_queue, &rx_data, pdMS_TO_TICKS(10000))) {
-            ESP_LOGI(TAG, "Received data from master");
+            ESP_LOGI(I2C_SLAVE_TAG, "Received data from master");
         } else {
-            ESP_LOGW(TAG, "No data received in 10 seconds");
+            ESP_LOGW(I2C_SLAVE_TAG, "No data received in 10 seconds");
         }
         }else{
-            ESP_LOGE(TAG, "Error while receaving data: %s", esp_err_to_name(ret));
+            ESP_LOGE(I2C_SLAVE_TAG, "Error while receaving data: %s", esp_err_to_name(ret));
             free(data_rd);
         }
     }
@@ -85,7 +72,7 @@ void i2c_slave_write_task(void *arg)
     size_t json_length = strlen(json) + 1;
     uint8_t json_buffer[256];
     if(json_length > sizeof(json_buffer)){
-        ESP_LOGE(TAG, "JSON string too long for I2C");
+        ESP_LOGE(I2C_SLAVE_TAG, "JSON string too long for I2C");
     }
     else {
         memcpy(json_buffer, json, json_length);
@@ -97,11 +84,11 @@ void i2c_slave_write_task(void *arg)
         esp_err_t ret = i2c_slave_transmit(handle, json_buffer, json_length, 1000);
         if(ret == ESP_OK)
         {
-            ESP_LOGI(TAG, "Data transmitted successfully");
+            ESP_LOGI(I2C_SLAVE_TAG, "Data transmitted successfully");
         }
         else 
         {
-            ESP_LOGE(TAG, "Error transmitting data: %s", esp_err_to_name(ret));
+            ESP_LOGE(I2C_SLAVE_TAG, "Error transmitting data: %s", esp_err_to_name(ret));
         }
     }
     // Clean up (not reached in this infinite loop)

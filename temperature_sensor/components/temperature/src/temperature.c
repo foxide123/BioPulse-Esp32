@@ -1,15 +1,8 @@
-#include "ds18b20.h"
 #include "temperature.h"
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "i2c_component_slave.h"
-#include "bluetooth_component.h"
-#include "cJSON_Sensor_Manager.h"
 
-#define SENSOR_READ_INTERVAL_MS 5000 // Read every 5 seconds
-
+static float read_temperature(void);
 static void temperature_publish_task(void* arg);
+
 
 static float read_temperature(void)
 {
@@ -61,7 +54,7 @@ static void temperature_publish_task(void *arg)
             //snprintf(temp_str, sizeof(temp_str), "%.2f", temperature);
             jsonSensorResponse json;
             json.value = temperature;
-            json.type = EC;
+            json.type = TEMPERATURE;
             json.id = "98620";
             json.sensor_name = "temp1";
 
@@ -87,7 +80,7 @@ static void temperature_publish_task(void *arg)
             }
 
             bluetooth_send_data(createdJson);
-
+    
            //int msg_id = esp_mqtt_client_publish(mqtt_client, "/sensors/temperature", createdJson, 0, 1, 1);
             //if(msg_id != -1)
             //{
@@ -98,7 +91,7 @@ static void temperature_publish_task(void *arg)
             //}
         }
 
-        vTaskDelay(pdMS_TO_TICKS(3000));
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 

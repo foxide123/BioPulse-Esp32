@@ -24,11 +24,7 @@ void app_main(void)
 #include "esp_mac.h"
 #include "wifi_component.h"
 
-#define DATA_LENGTH 32
-#define I2C_SLAVE_SCL_IO GPIO_NUM_22
-#define I2C_SLAVE_SDA_IO GPIO_NUM_21
 #define I2C_SLAVE_ADDR 0x61
-#define TEST_I2C_PORT I2C_NUM_0
 #define MAIN_TAG "Main"
 
 QueueHandle_t temp_queue;
@@ -66,7 +62,7 @@ void app_main(void)
         i2c_slave_config_t i2c_slv_config = {
         .addr_bit_len = I2C_ADDR_BIT_LEN_7,   // 7-bit address
         .clk_source = I2C_CLK_SRC_DEFAULT,    // set the clock source
-        .i2c_port = I2C_NUM_0,                        // set I2C port number
+        .i2c_port = I2C_PORT,                        // set I2C port number
         .send_buf_depth = 256,                // set tx buffer length
         .scl_io_num = I2C_SLAVE_SCL_IO,                      // SCL gpio number
         .sda_io_num = I2C_SLAVE_SDA_IO,                      // SDA gpio number
